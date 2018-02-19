@@ -1,0 +1,15 @@
+@font-face {
+    font-family: 'BPG Arial';
+    src: url('fonts/BPGArial.woff2') format('woff2'),
+        url('fonts/BPGArial.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'BPG WEB 001 Caps';
+    src: url('fonts/BPGWEB001Caps.woff2') format('woff2'),
+        url('fonts/BPGWEB001Caps.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
