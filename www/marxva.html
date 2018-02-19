@@ -81,6 +81,7 @@
         <div id="marxvebi">
           
         </div>
+        <div id="error"></div>
         <script src="js/jquery-3.3.1.min.js"></script>
         <script>
           $.ajax({url: "http://martlapi.testme.ge/api/v1/marxvebi", success: function(result){
@@ -90,7 +91,11 @@
             }
             $("#marxvebi").html(html);
             
-          }});
+          },
+          error: function(err){
+            $("#error").html(JSON.stringify(err));
+          }
+        });
         </script>
     </body>
 </html>
