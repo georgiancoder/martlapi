@@ -24,8 +24,10 @@
           }
           body{
             background-color: #EEE5D6;
-            padding: 100px 25px;
-
+            padding: 100px 0;
+          }
+          body.calendar{
+            background-color: #FFF;
           }
             .header{
                 width: 100%;
@@ -39,7 +41,12 @@
                 top: 0;
                 left: 0;
                 padding: 0 25px;
+                z-index: 2;
             }
+            .header.calendar{
+                background-color: #FFF;
+            }
+
             .ukan{
                 width: 28px;
                 height: 28px;
@@ -72,25 +79,247 @@
                 box-shadow: 0 5px 10px rgba(0,0,0,0.16);
                 padding: 0 15px;
               }
+              #marxvebi{
+                transition: 0.3s;
+                position: absolute;
+                width: 100%;
+                left: 0;
+                padding: 0 25px;
+              }
+              #afterclickoncalendar{
+                transition: 0.3s;
+                position: fixed;
+                right: -150%;
+                width: 100%;
+                height: calc(100vh - 100px);
+                overflow: auto;
+                padding: 0 40px;
+              }
+              #afterclickoncalendar .month{
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;          
+              }
+              #afterclickoncalendar .month .monthtitle{
+                font-size: 20px;
+                color: #363636;
+                font-family: "BPG WEB 001 Caps";
+              }
+              #afterclickoncalendar .month button{
+                background-color: transparent;
+              }
+              #afterclickoncalendar .month button.disabled{
+                opacity: 0.5;
+              }
+              #cal{
+                margin-top: 30px;
+                width: 100%;
+                border-collapse: collapse;
+              }
+              .tableheader{
+                border-bottom: 1px solid #D8D8D8;
+              }
+              tr:nth-child(2) td{
+                padding-top: 30px;
+              }
+              th{
+                text-align: left;
+                font-size: 11px;
+                color: #363636;
+                padding-bottom: 13px;
+                font-family: "BPG WEB 001 Caps";
+                text-align: center;
+              }
+              td{
+                padding: 15px 0;
+                font-size: 15px;
+                color: #363636;
+                font-family: "BPG WEB 001 Caps";
+                text-align: center;
+              }
+              body.calendar #marxvebi{
+                left: -150%;
+              }
+              body.calendar #afterclickoncalendar{
+                right: 0%;
+              }
+              .gap{
+                color: #ADADAD;
+              }
+              .currentDay{
+                color: #14911C;
+              }
+              .color{
+                width: 23px;
+                height: 17px;
+                margin-right: 10px;
+              }
+              .colors{
+                margin-top: 60px;
+              }
+              .colors ul li{
+                display: flex;
+                margin-bottom: 20px;
+              }
+              .colors ul li h4{
+                font-size: 13px;
+                color: #ADADAD;
+                line-height: 15px;
+                font-family: "BPG Arial";
+              }
         </style>
     </head>
     <body>
         <div class="header"><a href="index.html" class="back"><img src="images/back.png" class="ukan"> უკან</a> <button id="calendar"><img src="images/calendar.png"></button></div>
         
+        <div id="afterclickoncalendar">
+            <div class="month">
+                <button class="prev"><img src="images/monthprev.png"></button>
+                <h3 class="monthtitle"></h3>
+                <button class="next"><img src="images/monthnext.png"></button>
+            </div>
+            <table id="cal"></table>
+            <div id="color" class="colors"></div>
+        </div>
 
         <div id="marxvebi">
-          
         </div>
+        <div id="error"></div>
         <script src="js/jquery-3.3.1.min.js"></script>
         <script>
-          $.ajax({url: "http://martlapi.testme.ge/api/v1/marxvebi", success: function(result){
-            var html = '';
-            for(i in result){
-                html += '<a href="marxvain.html?id='+result[i].id+'" class="buttons">'+result[i].title+'</a>'
+            var marxvebi;
+            var feasts;
+            $.ajax({
+                    url: 'http://martlapi.testme.ge/api/v1/calendar',
+                    success: function(res){
+                        marxvebi = res.markhva;
+                        feasts = res.feasts;
+                        getColors(res.colors);
+                        console.log(res);
+                    }
+                });
+            var monthnum = new Date().getMonth();
+            function calendar(month){
+                var tempDate = new Date();
+                var months = ['იანვარი','თებერვალი','მარტი','აპრილი','მაისი','ივნისი','ივლისი','აგვისტო','სექტემბერი','ოქტომბერი','ნოემბერი','დეკემბერი'];
+                 var date = (month != undefined) ? new Date(tempDate.getFullYear(), month, tempDate.getDate()) : new Date();
+                 var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+                var firdaypad = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+                var prevMonthLastDay = new Date(date.getFullYear(), date.getMonth() - 1, 0).getDate();
+
+                var marxvisDgeebi = [];
+
+
+                if(marxvebi && feasts){
+                    $(".monthtitle").html(months[date.getMonth()]);
+                    var calendarhtml = "<tr class='tableheader'><th>ორშ</th><th>სამ</th><th>ოთხ</th><th>ხუთ</th><th>პარ</th><th>შაბ</th><th>კვ</th></tr><tr>";
+                    for(i=0; i<lastDay + firdaypad; i++){
+
+                        if(i > 0 && i % 7 == 0){
+                            calendarhtml+="</tr><tr>";
+                        }
+
+                        if(i >= firdaypad){
+                            var cday = (i-firdaypad + 1);
+                            if((i - firdaypad + 1) == date.getDate() && date.getMonth() == tempDate.getMonth()){
+                                calendarhtml+="<td class='currentDay'>"+cday+"</td>";
+                            }else{
+                                calendarhtml+="<td class='selectable'>"+cday+"</td>";
+                                marxvebi.forEach(function(marxva){
+                                    var currMonth = (date.getMonth()+1);
+
+                                    var startMonth = parseInt(marxva.start_date.split('-')[1]);
+                                    var endMonth = parseInt(marxva.end_date.split('-')[1]);
+                                    var startDate = parseInt(marxva.start_date.split('-')[2]);
+                                    var endDate = parseInt(marxva.end_date.split('-')[2]);
+                                    if((currMonth >= startMonth && currMonth <= endMonth)){
+                                        console.log(cday);
+                                    }
+                                    // console.log()
+                                    // console.log('start_date: ' + startDate + ' end_date: ' + endDate + ' start_month: ' + startMonth + ' end_month:' + endMonth + ' curr_date: ' + cday + ' curr_month: ' + currMonth);                                    
+                                });
+                            }
+                        }else{
+                            calendarhtml+="<td class='gap'>"+(prevMonthLastDay - (firdaypad - 1) + i)+"</td>";
+                        }
+
+                        if((firdaypad + lastDay) % 7 != 0 && (i-firdaypad + 1)  == lastDay){
+                            for(j = 0; j<7 - (firdaypad + lastDay)%7; j++){
+                                calendarhtml+="<td class='gap'>"+(j+1)+"</td>";
+                            }
+                        }
+                    }
+                    calendarhtml+="</tr>";
+                    $("#cal").html(calendarhtml);
+                }
+                
             }
-            $("#marxvebi").html(html);
-            
-          }});
+
+            $().ready(function(){
+                $(".prev").click(function(){
+                    $(".next").removeClass('disabled');
+                    if(monthnum > 1){
+                        $(".prev").removeClass('disabled');
+                        monthnum--;
+                    }else if(monthnum == 1){
+                        $(".prev").addClass('disabled');
+                        monthnum--;
+                    }else if(monthnum == 0){
+                        $(".prev").addClass('disabled');
+                    }
+                    calendar(monthnum);
+                });
+
+                $(".next").click(function(){
+                    $(".prev").removeClass('disabled');
+                    if(monthnum < 11){
+                        monthnum++;
+                        $(".next").removeClass('disabled');
+                    }else if(monthnum == 11){
+                            monthnum++;
+                         $(".next").addClass('disabled');
+                    }
+                    calendar(monthnum);
+                });
+            });
+            $.ajax({url: "http://martlapi.testme.ge/api/v1/marxvebi", success: function(result){
+                var html = '';
+                for(i in result){
+                    html += '<a href="marxvain.html?id='+result[i].id+'" class="buttons">'+result[i].title+'</a>'
+                }
+                $("#marxvebi").html(html);
+                
+                },
+                error: function(err){
+                    $("#error").html(JSON.stringify(err));
+                }
+            });
+
+            $("#calendar").click(function(){
+                calendar(monthnum);
+                $("body").toggleClass('calendar');
+                if($("body").hasClass('calendar')){
+                    $(".header").addClass('calendar');
+                    $(".header #calendar img").attr('src','images/calendarred.png');
+                }
+                else{
+                    $(".header").removeClass('calendar');
+                    $(".header #calendar img").attr('src','images/calendar.png');
+                }
+            });
+
+            function getColors(colors){
+                var html = '<ul>';
+
+                colors.forEach(function(color){
+                    html+='<li><div class="color" style="background-color: #'+color.code+'"></div> <h4>'+ color.title +'</h4></li>';
+                });
+
+                html+='</ul>';
+                $("#color").html(html);
+            }
+
         </script>
     </body>
 </html>

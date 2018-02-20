@@ -91,6 +91,8 @@
                 position: fixed;
                 right: -150%;
                 width: 100%;
+                height: calc(100vh - 100px);
+                overflow: auto;
                 padding: 0 40px;
               }
               #afterclickoncalendar .month{
@@ -106,6 +108,9 @@
               }
               #afterclickoncalendar .month button{
                 background-color: transparent;
+              }
+              #afterclickoncalendar .month button.disabled{
+                opacity: 0.5;
               }
               #cal{
                 margin-top: 30px;
@@ -145,6 +150,24 @@
               .currentDay{
                 color: #14911C;
               }
+              .color{
+                width: 23px;
+                height: 17px;
+                margin-right: 10px;
+              }
+              .colors{
+                margin-top: 60px;
+              }
+              .colors ul li{
+                display: flex;
+                margin-bottom: 20px;
+              }
+              .colors ul li h4{
+                font-size: 13px;
+                color: #ADADAD;
+                line-height: 15px;
+                font-family: "BPG Arial";
+              }
         </style>
     </head>
     <body>
@@ -157,6 +180,7 @@
                 <button class="next"><img src="images/monthnext.png"></button>
             </div>
             <table id="cal"></table>
+            <div id="color" class="colors"></div>
         </div>
 
         <div id="marxvebi">
@@ -164,44 +188,103 @@
         <div id="error"></div>
         <script src="js/jquery-3.3.1.min.js"></script>
         <script>
-            var monthnum = new Date().getMonth() + 1;
+            var marxvebi;
+            var feasts;
+            $.ajax({
+                    url: 'http://martlapi.testme.ge/api/v1/calendar',
+                    success: function(res){
+                        marxvebi = res.markhva;
+                        feasts = res.feasts;
+                        getColors(res.colors);
+                        console.log(res);
+                    }
+                });
+            var monthnum = new Date().getMonth();
             function calendar(month){
                 var tempDate = new Date();
                 var months = ['იანვარი','თებერვალი','მარტი','აპრილი','მაისი','ივნისი','ივლისი','აგვისტო','სექტემბერი','ოქტომბერი','ნოემბერი','დეკემბერი'];
-                 var date = (month) ? new Date(tempDate.getFullYear(), month, tempDate.getDate()) : new Date();
+                 var date = (month != undefined) ? new Date(tempDate.getFullYear(), month, tempDate.getDate()) : new Date();
                  var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
                 var firdaypad = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
                 var prevMonthLastDay = new Date(date.getFullYear(), date.getMonth() - 1, 0).getDate();
 
+                var marxvisDgeebi = [];
 
-                $(".monthtitle").html(months[date.getMonth()]);
-                var calendarhtml = "<tr class='tableheader'><th>ორშ</th><th>სამ</th><th>ოთხ</th><th>ხუთ</th><th>პარ</th><th>შაბ</th><th>კვ</th></tr><tr>";
-                for(i=0; i<lastDay + firdaypad; i++){
-                    if(i > 0 && i % 7 == 0){
-                        calendarhtml+="</tr><tr>";
-                    }
-                    if(i >= firdaypad){
-                        if((i - firdaypad + 1) == date.getDate()){
-                            calendarhtml+="<td class='currentDay'>"+(i-firdaypad + 1)+"</td>";
+                if(marxvebi && feasts){
+                    $(".monthtitle").html(months[date.getMonth()]);
+                    var calendarhtml = "<tr class='tableheader'><th>ორშ</th><th>სამ</th><th>ოთხ</th><th>ხუთ</th><th>პარ</th><th>შაბ</th><th>კვ</th></tr><tr>";
+                    for(i=0; i<lastDay + firdaypad; i++){
+
+                        if(i > 0 && i % 7 == 0){
+                            calendarhtml+="</tr><tr>";
+                        }
+
+                        if(i >= firdaypad){
+                            var cday = (i-firdaypad + 1);
+                            if((i - firdaypad + 1) == date.getDate() && date.getMonth() == tempDate.getMonth()){
+                                calendarhtml+="<td class='currentDay'>"+cday+"</td>";
+                            }else{
+                                calendarhtml+="<td class='selectable'>"+cday+"</td>";
+                                marxvebi.forEach(function(marxva){
+                                    var dates = getDates(marxva.start_date, marxva.end_date);
+                                    console.log(marxva.start_date);
+                                });
+                            }
                         }else{
-                            calendarhtml+="<td class='selectable'>"+(i-firdaypad + 1)+"</td>";
+                            calendarhtml+="<td class='gap'>"+(prevMonthLastDay - (firdaypad - 1) + i)+"</td>";
                         }
-                    }else{
-                        calendarhtml+="<td class='gap'>"+(prevMonthLastDay - (firdaypad - 1) + i)+"</td>";
-                    }
-                    if((firdaypad + lastDay) % 7 != 0 && (i-firdaypad + 1)  == lastDay){
-                        for(j = 0; j<7 - (firdaypad + lastDay)%7; j++){
-                            calendarhtml+="<td class='gap'>"+(j+1)+"</td>";
+
+                        if((firdaypad + lastDay) % 7 != 0 && (i-firdaypad + 1)  == lastDay){
+                            for(j = 0; j<7 - (firdaypad + lastDay)%7; j++){
+                                calendarhtml+="<td class='gap'>"+(j+1)+"</td>";
+                            }
                         }
                     }
+                    calendarhtml+="</tr>";
+                    $("#cal").html(calendarhtml);
                 }
-                calendarhtml+="</tr>";
-                $("#cal").html(calendarhtml);
+                
             }
 
+            var getDates = function(startDate, endDate) {
+              var dates = [],
+                  currentDate = startDate,
+                  addDays = function(days) {
+                    var date = new Date(this.valueOf());
+                    date.setDate(date.getDate() + days);
+                    return date;
+                  };
+              while (currentDate <= endDate) {
+                dates.push(currentDate);
+                currentDate = addDays.call(currentDate, 1);
+              }
+              return dates;
+            };
 
             $().ready(function(){
                 $(".prev").click(function(){
+                    $(".next").removeClass('disabled');
+                    if(monthnum > 1){
+                        $(".prev").removeClass('disabled');
+                        monthnum--;
+                    }else if(monthnum == 1){
+                        $(".prev").addClass('disabled');
+                        monthnum--;
+                    }else if(monthnum == 0){
+                        $(".prev").addClass('disabled');
+                    }
+                    calendar(monthnum);
+                });
+
+                $(".next").click(function(){
+                    $(".prev").removeClass('disabled');
+                    if(monthnum < 11){
+                        monthnum++;
+                        $(".next").removeClass('disabled');
+                    }else if(monthnum == 11){
+                            monthnum++;
+                         $(".next").addClass('disabled');
+                    }
                     calendar(monthnum);
                 });
             });
@@ -219,7 +302,7 @@
             });
 
             $("#calendar").click(function(){
-                calendar();
+                calendar(monthnum);
                 $("body").toggleClass('calendar');
                 if($("body").hasClass('calendar')){
                     $(".header").addClass('calendar');
@@ -230,6 +313,17 @@
                     $(".header #calendar img").attr('src','images/calendar.png');
                 }
             });
+
+            function getColors(colors){
+                var html = '<ul>';
+
+                colors.forEach(function(color){
+                    html+='<li><div class="color" style="background-color: #'+color.code+'"></div> <h4>'+ color.title +'</h4></li>';
+                });
+
+                html+='</ul>';
+                $("#color").html(html);
+            }
 
         </script>
     </body>
