@@ -26,6 +26,9 @@
             background-color: #EEE5D6;
             padding: 100px 25px;
           }
+          body.calendar{
+            background-color: #FFF;
+          }
             .header{
                 width: 100%;
                 height: 100px;
@@ -38,6 +41,10 @@
                 top: 0;
                 left: 0;
                 padding: 0 25px;
+                z-index: 2;
+            }
+            .header.calendar{
+                background-color: #FFF;
             }
             .ukan{
                 width: 28px;
@@ -83,17 +90,293 @@
                 font-family: "BPG Arial";
                 word-break: break-all;
               }
+
+              #marxva{
+                transition: 0.3s;
+                position: absolute;
+                width: 100%;
+                left: 0;
+                padding: 0 25px;
+              }
+              #afterclickoncalendar{
+                transition: 0.3s;
+                position: fixed;
+                right: -150%;
+                width: 100%;
+                height: calc(100vh - 100px);
+                overflow: auto;
+                padding: 0 40px;
+              }
+              #afterclickoncalendar .month{
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;          
+              }
+              #afterclickoncalendar .month .monthtitle{
+                font-size: 20px;
+                color: #363636;
+                font-family: "BPG WEB 001 Caps";
+              }
+              #afterclickoncalendar .month button{
+                background-color: transparent;
+              }
+              #afterclickoncalendar .month button.disabled{
+                opacity: 0.5;
+              }
+              #cal{
+                margin-top: 30px;
+                width: 100%;
+                border-collapse: collapse;
+              }
+              .tableheader{
+                border-bottom: 1px solid #D8D8D8;
+              }
+              tr:nth-child(2) td{
+                padding-top: 30px;
+              }
+              th{
+                text-align: left;
+                font-size: 11px;
+                color: #363636;
+                padding-bottom: 13px;
+                font-family: "BPG WEB 001 Caps";
+                text-align: center;
+              }
+              td{
+                padding: 15px 0;
+                font-size: 15px;
+                color: #363636;
+                font-family: "BPG WEB 001 Caps";
+                text-align: center;
+                position: relative;
+              }
+              body.calendar #marxva{
+                left: -150%;
+              }
+              body.calendar #afterclickoncalendar{
+                right: 0%;
+              }
+              .gap{
+                color: #ADADAD;
+              }
+              .currentDay{
+                color: #14911C;
+              }
+              .color{
+                width: 23px;
+                height: 17px;
+                margin-right: 10px;
+              }
+              .colors{
+                margin-top: 60px;
+              }
+              .colors ul li{
+                display: flex;
+                margin-bottom: 20px;
+              }
+              .colors ul li h4{
+                font-size: 13px;
+                color: #ADADAD;
+                line-height: 15px;
+                font-family: "BPG Arial";
+              }
+              .marxva{
+                color: #FFF;
+              }
+              .bgcolor{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 40px;
+                height: 35px;
+                line-height: 35px;
+                position: relative;
+              }
+              td:hover .before{
+                display: block;
+              }
+              .bgcolor .before{
+                position: absolute;
+                top: -10px;
+                left: 50%;
+                transform: translateX(-50%);
+                content: '';
+                width: 0;
+                height: 0;
+                border-style: solid;
+                border-width: 3px 3px 0 3px;
+                border-left-color: transparent;
+                border-bottom-color: transparent;
+                border-right-color: transparent;
+                display: none;
+              }
+              .tooltip{
+                position: absolute;
+                bottom: 60px;
+                display: none;
+                z-index: 2;
+                padding: 10px;
+              }
+              td:hover .tooltip{
+                display: block;
+              }
         </style>
     </head>
     <body>
         <div class="header"><a href="marxva.html" class="back"><img src="images/back.png" class="ukan"> უკან</a> <button id="calendar"><img src="images/calendar.png"></button></div>
         
+        <div id="afterclickoncalendar">
+            <div class="month">
+                <button class="prev"><img src="images/monthprev.png"></button>
+                <h3 class="monthtitle"></h3>
+                <button class="next"><img src="images/monthnext.png"></button>
+            </div>
+            <table id="cal"></table>
+            <div id="color" class="colors"></div>
+        </div>
 
         <div id="marxva">
           
         </div>
         <script src="js/jquery-3.3.1.min.js"></script>
         <script>
+
+            var marxvebi;
+            var feasts;
+            $.ajax({
+                    url: 'http://martlapi.testme.ge/api/v1/calendar',
+                    success: function(res){
+                        marxvebi = res.markhva;
+                        feasts = res.feasts;
+                        getColors(res.colors);
+                        console.log(res);
+                    }
+                });
+            var monthnum = new Date().getMonth();
+            function calendar(month){
+                var tempDate = new Date();
+                var months = ['იანვარი','თებერვალი','მარტი','აპრილი','მაისი','ივნისი','ივლისი','აგვისტო','სექტემბერი','ოქტომბერი','ნოემბერი','დეკემბერი'];
+                 var date = (month != undefined) ? new Date(tempDate.getFullYear(), month, tempDate.getDate()) : new Date();
+                 var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+                var firdaypad = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+                var prevMonthLastDay = new Date(date.getFullYear(), date.getMonth(), 0).getDate();
+                var marxvisDgeebi = [];
+                marxvebi.forEach(function(marxva){
+                                    var dates = getDates(new Date(marxva.start_date), new Date(marxva.end_date), marxva);
+                                    marxvisDgeebi = marxvisDgeebi.concat(dates);
+                                });
+                if(marxvebi && feasts){
+                    $(".monthtitle").html(months[date.getMonth()]);
+                    var calendarhtml = "<tr class='tableheader'><th>ორშ</th><th>სამ</th><th>ოთხ</th><th>ხუთ</th><th>პარ</th><th>შაბ</th><th>კვ</th></tr><tr>";
+                    for(i=0; i<lastDay + firdaypad; i++){
+
+                        if(i > 0 && i % 7 == 0){
+                            calendarhtml+="</tr><tr>";
+                        }
+
+                        if(i >= firdaypad){
+                            var cday = (i-firdaypad + 1);
+                            if((i - firdaypad + 1) == date.getDate() && date.getMonth() == tempDate.getMonth()){
+                                calendarhtml+="<td class='currentDay'>"+cday+"</td>";
+                            }else{
+                                var d = false;
+                                var d2 = false;
+                                var currentDay = new Date(date.getFullYear(),date.getMonth(),cday);
+                                marxvisDgeebi.forEach(function(obj){
+                                    if(obj.day.getDate() == currentDay.getDate() && obj.day.getMonth() == currentDay.getMonth()){
+                                        d = obj;
+                                    }
+                                });
+
+                                feasts.forEach(function(feast){
+                                    var feastDay = new Date(feast.date);
+                                    if(feastDay.getDate() == currentDay.getDate() && feastDay.getMonth() == currentDay.getMonth()){
+                                        d2 = feast;
+                                        console.log(d2);
+                                    }
+                                });
+
+                                if(d2){
+                                    calendarhtml+="<td class='marxva' title='"+d2.title+"'><span class='tooltip' style='background-color: #"+d2.code+"'>"+d2.title+"</span><span class='bgcolor' style='background-color: #"+d2.code+"'><span class='before' style='border-top-color: #"+d2.code+"'></span>"+cday+"</span></td>";
+                                }else if(d){
+                                    calendarhtml+="<td class='marxva' title='"+d.title+"'><span class='tooltip' style='background-color: #"+d.color+"'>"+d.title+"</span><span class='bgcolor' style='background-color: #"+d.color+"'><span class='before' style='border-top-color: #"+d.color+"'></span>"+cday+"</span></td>";
+                                }
+                                else{
+                                    calendarhtml+="<td>"+cday+"</td>";
+                                }
+
+                            }
+                        }else{
+                            calendarhtml+="<td class='gap'>"+(prevMonthLastDay - (firdaypad - 1) + i)+"</td>";
+                        }
+
+                        if((firdaypad + lastDay) % 7 != 0 && (i-firdaypad + 1)  == lastDay){
+                            for(j = 0; j<7 - (firdaypad + lastDay)%7; j++){
+                                calendarhtml+="<td class='gap'>"+(j+1)+"</td>";
+                            }
+                        }
+                    }
+                    calendarhtml+="</tr>";
+                    $("#cal").html(calendarhtml);
+                }
+            }
+
+            var getDates = function(startDate, endDate, obj) {
+              var dates = [],
+                  currentDate = startDate,
+                  addDays = function(days) {
+                    var date = new Date(this.valueOf());
+                    date.setDate(date.getDate() + days);
+                    return date;
+                  };
+              while (currentDate <= endDate) {
+                var nobj = { day: currentDate, title: obj.title, color: obj.color_code};
+                dates.push(nobj);
+                currentDate = addDays.call(currentDate, 1);
+              }
+              return dates;
+            };
+
+            $().ready(function(){
+                $(".prev").click(function(){
+                    $(".next").removeClass('disabled');
+                    if(monthnum > 1){
+                        $(".prev").removeClass('disabled');
+                        monthnum--;
+                    }else if(monthnum == 1){
+                        $(".prev").addClass('disabled');
+                        monthnum--;
+                    }else if(monthnum == 0){
+                        $(".prev").addClass('disabled');
+                    }
+                    calendar(monthnum);
+                    $("td").on('touchstart',function(){
+                       var tooltipWidth = $(this).find('.tooltip').innerWidth();
+                        $(this).find('.tooltip').width($(window).innerWidth() - 100);
+                        $(this).find('.tooltip').css('left',-$(this).offset().left + 40)
+                    });
+                });
+
+                $(".next").click(function(){
+                    $(".prev").removeClass('disabled');
+                    if(monthnum < 11){
+                        monthnum++;
+                        $(".next").removeClass('disabled');
+                    }else if(monthnum == 11){
+                            monthnum++;
+                         $(".next").addClass('disabled');
+                    }
+                    calendar(monthnum);
+                    $("td").on('touchstart',function(){
+                       var tooltipWidth = $(this).find('.tooltip').innerWidth();
+                        $(this).find('.tooltip').width($(window).innerWidth() - 100);
+                        $(this).find('.tooltip').css('left',-$(this).offset().left + 40)
+                    });
+                });
+
+            });
+
         var id = location.href.split('=')[1];
           $.ajax({url: "http://martlapi.testme.ge/api/v1/marxvebi/" + id, success: function(result){
             var html = '<h2>'+result.title+'</h2>';
@@ -101,6 +384,35 @@
             $("#marxva").html(html);
 
           }});
+
+          $("#calendar").click(function(){
+                calendar(monthnum);
+                $("td").on('touchstart',function(){
+                   var tooltipWidth = $(this).find('.tooltip').innerWidth();
+                    $(this).find('.tooltip').width($(window).innerWidth() - 100);
+                    $(this).find('.tooltip').css('left',-$(this).offset().left + 40)
+                });
+                $("body").toggleClass('calendar');
+                if($("body").hasClass('calendar')){
+                    $(".header").addClass('calendar');
+                    $(".header #calendar img").attr('src','images/calendarred.png');
+                }
+                else{
+                    $(".header").removeClass('calendar');
+                    $(".header #calendar img").attr('src','images/calendar.png');
+                }
+            });
+
+          function getColors(colors){
+                var html = '<ul>';
+
+                colors.forEach(function(color){
+                    html+='<li><div class="color" style="background-color: #'+color.code+'"></div> <h4>'+ color.title +'</h4></li>';
+                });
+
+                html+='</ul>';
+                $("#color").html(html);
+            }
         </script>
     </body>
 </html>

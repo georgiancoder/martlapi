@@ -137,6 +137,7 @@
                 color: #363636;
                 font-family: "BPG WEB 001 Caps";
                 text-align: center;
+                position: relative;
               }
               body.calendar #marxvebi{
                 left: -150%;
@@ -172,10 +173,41 @@
                 color: #FFF;
               }
               .bgcolor{
-                display: block;
+                display: flex;
+                align-items: center;
+                justify-content: center;
                 width: 40px;
                 height: 35px;
                 line-height: 35px;
+                position: relative;
+              }
+              td:hover .before{
+                display: block;
+              }
+              .bgcolor .before{
+                position: absolute;
+                top: -10px;
+                left: 50%;
+                transform: translateX(-50%);
+                content: '';
+                width: 0;
+                height: 0;
+                border-style: solid;
+                border-width: 3px 3px 0 3px;
+                border-left-color: transparent;
+                border-bottom-color: transparent;
+                border-right-color: transparent;
+                display: none;
+              }
+              .tooltip{
+                position: absolute;
+                bottom: 60px;
+                display: none;
+                z-index: 2;
+                padding: 10px;
+              }
+              td:hover .tooltip{
+                display: block;
               }
         </style>
     </head>
@@ -216,7 +248,6 @@
                  var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
                 var firdaypad = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
                 var prevMonthLastDay = new Date(date.getFullYear(), date.getMonth(), 0).getDate();
-                console.log(prevMonthLastDay);
                 var marxvisDgeebi = [];
                 marxvebi.forEach(function(marxva){
                                     var dates = getDates(new Date(marxva.start_date), new Date(marxva.end_date), marxva);
@@ -254,9 +285,9 @@
                                 });
 
                                 if(d2){
-                                    calendarhtml+="<td class='marxva' title='"+d2.title+"'><span class='bgcolor' style='background-color: #"+d2.code+"'>"+cday+"</span></td>";
+                                    calendarhtml+="<td class='marxva' title='"+d2.title+"'><span class='tooltip' style='background-color: #"+d2.code+"'>"+d2.title+"</span><span class='bgcolor' style='background-color: #"+d2.code+"'><span class='before' style='border-top-color: #"+d2.code+"'></span>"+cday+"</span></td>";
                                 }else if(d){
-                                    calendarhtml+="<td class='marxva' title='"+d.title+"'><span class='bgcolor' style='background-color: #"+d.color+"'>"+cday+"</span></td>";
+                                    calendarhtml+="<td class='marxva' title='"+d.title+"'><span class='tooltip' style='background-color: #"+d.color+"'>"+d.title+"</span><span class='bgcolor' style='background-color: #"+d.color+"'><span class='before' style='border-top-color: #"+d.color+"'></span>"+cday+"</span></td>";
                                 }
                                 else{
                                     calendarhtml+="<td>"+cday+"</td>";
@@ -276,7 +307,6 @@
                     calendarhtml+="</tr>";
                     $("#cal").html(calendarhtml);
                 }
-                
             }
 
             var getDates = function(startDate, endDate, obj) {
@@ -308,6 +338,11 @@
                         $(".prev").addClass('disabled');
                     }
                     calendar(monthnum);
+                    $("td").on('touchstart',function(){
+                       var tooltipWidth = $(this).find('.tooltip').innerWidth();
+                        $(this).find('.tooltip').width($(window).innerWidth() - 100);
+                        $(this).find('.tooltip').css('left',-$(this).offset().left + 40)
+                    });
                 });
 
                 $(".next").click(function(){
@@ -320,7 +355,13 @@
                          $(".next").addClass('disabled');
                     }
                     calendar(monthnum);
+                    $("td").on('touchstart',function(){
+                       var tooltipWidth = $(this).find('.tooltip').innerWidth();
+                        $(this).find('.tooltip').width($(window).innerWidth() - 100);
+                        $(this).find('.tooltip').css('left',-$(this).offset().left + 40)
+                    });
                 });
+
             });
             $.ajax({url: "http://martlapi.testme.ge/api/v1/marxvebi", success: function(result){
                 var html = '';
@@ -337,6 +378,11 @@
 
             $("#calendar").click(function(){
                 calendar(monthnum);
+                $("td").on('touchstart',function(){
+                   var tooltipWidth = $(this).find('.tooltip').innerWidth();
+                    $(this).find('.tooltip').width($(window).innerWidth() - 100);
+                    $(this).find('.tooltip').css('left',-$(this).offset().left + 40)
+                });
                 $("body").toggleClass('calendar');
                 if($("body").hasClass('calendar')){
                     $(".header").addClass('calendar');
