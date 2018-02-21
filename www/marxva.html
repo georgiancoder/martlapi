@@ -171,6 +171,12 @@
               .marxva{
                 color: #FFF;
               }
+              .bgcolor{
+                display: block;
+                width: 40px;
+                height: 35px;
+                line-height: 35px;
+              }
         </style>
     </head>
     <body>
@@ -209,8 +215,8 @@
                  var date = (month != undefined) ? new Date(tempDate.getFullYear(), month, tempDate.getDate()) : new Date();
                  var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
                 var firdaypad = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-                var prevMonthLastDay = new Date(date.getFullYear(), date.getMonth() - 1, 0).getDate();
-
+                var prevMonthLastDay = new Date(date.getFullYear(), date.getMonth(), 0).getDate();
+                console.log(prevMonthLastDay);
                 var marxvisDgeebi = [];
                 marxvebi.forEach(function(marxva){
                                     var dates = getDates(new Date(marxva.start_date), new Date(marxva.end_date), marxva);
@@ -231,7 +237,7 @@
                                 calendarhtml+="<td class='currentDay'>"+cday+"</td>";
                             }else{
                                 var d = false;
-                                
+                                var d2 = false;
                                 var currentDay = new Date(date.getFullYear(),date.getMonth(),cday);
                                 marxvisDgeebi.forEach(function(obj){
                                     if(obj.day.getDate() == currentDay.getDate() && obj.day.getMonth() == currentDay.getMonth()){
@@ -239,9 +245,20 @@
                                     }
                                 });
 
-                                if(d){
-                                    calendarhtml+="<td class='marxva' title='"+d.title+"' style='background-color: #"+d.color+"'>"+cday+"</td>";
-                                }else{
+                                feasts.forEach(function(feast){
+                                    var feastDay = new Date(feast.date);
+                                    if(feastDay.getDate() == currentDay.getDate() && feastDay.getMonth() == currentDay.getMonth()){
+                                        d2 = feast;
+                                        console.log(d2);
+                                    }
+                                });
+
+                                if(d2){
+                                    calendarhtml+="<td class='marxva' title='"+d2.title+"'><span class='bgcolor' style='background-color: #"+d2.code+"'>"+cday+"</span></td>";
+                                }else if(d){
+                                    calendarhtml+="<td class='marxva' title='"+d.title+"'><span class='bgcolor' style='background-color: #"+d.color+"'>"+cday+"</span></td>";
+                                }
+                                else{
                                     calendarhtml+="<td>"+cday+"</td>";
                                 }
 
