@@ -383,6 +383,9 @@
                 html+='</ul>';
                 $("#color").html(html);
             }
+            document.addEventListener("offline", function(){
+              alert('you have no internet');
+            }, false);
         </script>
     </body>
 </html>
