@@ -410,7 +410,7 @@
             });
 
             function getCalendarByColor(){
-                $("#colors li").click(function(){
+                $("#colors li").on('click',function(){
                     var marxvaStart = $(this).data('marxvastart').length > 0 ? parseInt($(this).data('marxvastart').split('-')[1]) : false;
                     // var marxvaEnd = $(this).data('marxvaend').length > 0 ? parseInt($(this).data('marxvaend').split('-')[1]) : false;
                     var feast = $(this).data('feast').length > 0 ? parseInt($(this).data('feast').split('-')[1]) : false;

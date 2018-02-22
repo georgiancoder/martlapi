@@ -391,7 +391,7 @@
 
           }});
 
-          $("#calendar").click(function(){
+          $("#calendar").on('touchstart',function(){
                 calendar(monthnum);
                 $("td").on('touchstart',function(){
                    var tooltipWidth = $(this).find('.tooltip').innerWidth();

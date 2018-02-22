@@ -401,7 +401,9 @@
             });
 
             function getCalendarByColor(){
-                $("#colors li").click(function(){
+                $("#colors li").on('click',function(event){
+                    event.stopPropagation();
+                    event.stopImmediatePropagation();
                     var marxvaStart = $(this).data('marxvastart').length > 0 ? parseInt($(this).data('marxvastart').split('-')[1]) : false;
                     // var marxvaEnd = $(this).data('marxvaend').length > 0 ? parseInt($(this).data('marxvaend').split('-')[1]) : false;
                     var feast = $(this).data('feast').length > 0 ? parseInt($(this).data('feast').split('-')[1]) : false;
@@ -409,15 +411,22 @@
                     if(feast){
                         monthnum = feast - 1;
                         calendar(monthnum);
-                    }else if(marxvaStart){
+                    }
+
+                    if(marxvaStart){
                         monthnum = marxvaStart - 1;
                         calendar(monthnum);
                     }
+
+                    console.log(marxvaStart);
+                    console.log(feast);
                     $("td").on('touchstart',function(){
                        var tooltipWidth = $(this).find('.tooltip').innerWidth();
                         $(this).find('.tooltip').width($(window).innerWidth() - 100);
                         $(this).find('.tooltip').css('left',-$(this).offset().left + 40)
                     });
+
+                    event.preventDefault();
                 });
             }
 
