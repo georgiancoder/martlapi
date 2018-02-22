@@ -224,7 +224,7 @@
         </style>
     </head>
     <body>
-        <div class="header"><a href="marxva.html" class="back"><img src="images/back.png" class="ukan"> უკან</a> <button id="calendar"><img src="images/calendar.png"></button></div>
+        <div class="header"><a href="feasts.html" class="back"><img src="images/back.png" class="ukan"> უკან</a> <button id="calendar"><img src="images/calendar.png"></button></div>
 
         <div id="afterclickoncalendar">
             <div class="month">
@@ -389,6 +389,7 @@
             var html = '<h2>'+result.title+'</h2>';
             html += '<p>'+result.description+'</p>'
             $("#feast").html(html);
+            console.log(result);
           }});
 
           $("#calendar").click(function(){

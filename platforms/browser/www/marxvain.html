@@ -254,7 +254,7 @@
                     }
                 });
             var monthnum = new Date().getMonth();
-            function calendar(month){
+            function calendar(month, marxvebi, feasts){
                 var tempDate = new Date();
                 var months = ['იანვარი','თებერვალი','მარტი','აპრილი','მაისი','ივნისი','ივლისი','აგვისტო','სექტემბერი','ოქტომბერი','ნოემბერი','დეკემბერი'];
                  var date = (month != undefined) ? new Date(tempDate.getFullYear(), month, tempDate.getDate()) : new Date();
@@ -356,7 +356,7 @@
                     }else if(monthnum == 0){
                         $(".prev").addClass('disabled');
                     }
-                    calendar(monthnum);
+                    calendar(monthnum, marxvebi, feasts);
                     $("td").on('touchstart',function(){
                        var tooltipWidth = $(this).find('.tooltip').innerWidth();
                         $(this).find('.tooltip').width($(window).innerWidth() - 100);
@@ -373,7 +373,7 @@
                             monthnum++;
                          $(".next").addClass('disabled');
                     }
-                    calendar(monthnum);
+                    calendar(monthnum, marxvebi, feasts);
                     $("td").on('touchstart',function(){
                        var tooltipWidth = $(this).find('.tooltip').innerWidth();
                         $(this).find('.tooltip').width($(window).innerWidth() - 100);
@@ -388,11 +388,12 @@
             var html = '<h2>'+result.title+'</h2>';
             html += '<p>'+result.description+'</p>'
             $("#marxva").html(html);
+            console.log(result);
 
           }});
 
           $("#calendar").on('touchstart',function(){
-                calendar(monthnum);
+                calendar(monthnum, marxvebi, feasts);
                 $("td").on('touchstart',function(){
                    var tooltipWidth = $(this).find('.tooltip').innerWidth();
                     $(this).find('.tooltip').width($(window).innerWidth() - 100);
@@ -417,10 +418,10 @@
 
                     if(feast){
                         monthnum = feast - 1;
-                        calendar(monthnum);
+                        calendar(monthnum, marxvebi, feasts);
                     }else if(marxvaStart){
                         monthnum = marxvaStart - 1;
-                        calendar(monthnum);
+                        calendar(monthnum, marxvebi, feasts);
                     }
                     $("td").on('touchstart',function(){
                        var tooltipWidth = $(this).find('.tooltip').innerWidth();
