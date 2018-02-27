@@ -1,31 +1,4 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
-        <meta name="msapplication-tap-highlight" content="no" />
-        <meta name="format-detection" content="telephone=no" />
-        <title>Martlapp</title>
-        <link rel="stylesheet" type="text/css" href="fonts.css">
-        <link rel="stylesheet" type="text/css" href="css/style.css">
-    </head>
-    <body>
-        <div class="header"><a href="marxva.html" class="back"><img src="images/back.png" class="ukan"> უკან</a> <button id="calendar"><img src="images/calendar.png"></button></div>
-        <a href="" class="prevday"><img src="images/monthprev.png"></a>
-        <a href="" class="nextday"><img src="images/monthnext.png"></a>
-        <div id="afterclickoncalendar">
-            <div id="cal"></div>
-            <div id="color" class="colors"></div>
-        </div>
-
-
-        <div id="marxva">
-          
-        </div>
-        <script src="js/jquery-3.3.1.min.js"></script>
-        <script src="js/jquery-ui.min.js"></script>
-        <script>
-            var marxvisDgeebi = [];
+var marxvisDgeebi = [];
             var dgesaswaulebi = [];
             var marxvebi;
             var feasts;
@@ -67,77 +40,6 @@
               return dates;
             };
 
-
-        var id = location.href.split('=')[1];
-          $.ajax({url: "http://martlapi.testme.ge/api/v1/marxvebi/" + id, success: function(result){
-            console.log(result);
-            if(result.previous) {
-                $(".prevday").attr('href','marxvain.html?id=' + result.previous);
-            }else{
-                $(".prevday").removeAttr('href').addClass('disabled');
-            }
-            if(result.next){
-                $(".nextday").attr('href','marxvain.html?id=' +result.next);
-            }else{
-                $(".nextday").removeAttr('href').addClass('disabled');
-            }
-            
-            var dates = getDates(new Date(result.start_date),new Date(result.end_date),result);
-            var month = parseInt(result.start_date.split('-')[1]);
-            var html = '<h2>'+result.title+'</h2>';
-            html += "<div id='vaja'></div>";
-            html += '<p>'+result.description+'</p>'
-            $("#marxva").html(html);
-            $( "#vaja" ).datepicker({
-                monthNames: [ "იანვარი", "თებერვალი", "მარტი", "აპრილი", "მაისი", "ივნისი", "ივლისი", "აგვისტო", "სექტემბერი", "ოქტომბერი", "ნოემბერი", "დეკემბერი" ],
-                dayNamesMin: [ "კვ","ორ", "სამ", "ოთხ", "ხუთ", "პარ", "შაბ" ],
-                showOtherMonths: true,
-                changeYear: false,
-                beforeShowDay: function(d){
-                    var clas = '';
-                    var obj = '';
-                    dates.forEach(function(date){
-                        if(d.getDate() == date.day.getDate() && d.getMonth() == date.day.getMonth()){
-                            clas = 'marxva';
-                            obj = JSON.stringify(date);
-                        }
-                    });
-                    return [false,clas,obj];
-                  },
-                  onChangeMonthYear: function(){
-                    setTimeout(function(){
-                        $( "#vaja .marxva" ).each(function(){
-                            $(this).find(".tooltip").remove();
-                            $(this).find(".before").remove();
-                        $(this).find('span').css("background-color","#"+result.color_code).append('<span class="before" style="border-top-color: #'+result.color_code+'"></span>');
-                        $(this).append("<span class='tooltip' style='background-color: #"+result.color_code+"'>"+result.title+"</span>");
-
-                        $("#vaja .marxva").on('touchstart',function(){
-                       var tooltipWidth = $(this).find('.tooltip').innerWidth();
-                        $(this).find('.tooltip').width($(window).innerWidth() - 100);
-                        $(this).find('.tooltip').css('left',-$(this).offset().left + 40)
-                    });
-                    });
-                    },10);
-                    
-                  }
-            });
-            $("#vaja").datepicker('option', 'firstDay', 1);
-            $( "#vaja" ).datepicker("setDate",new Date(result.start_date));
-            $( "#vaja .marxva" ).each(function(){
-               var obj = JSON.parse($(this).attr('title'));
-                $(this).find('.ui-state-default').css("background-color","#"+obj.color).append('<span class="before" style="border-top-color: #'+obj.color+'"></span>');
-                $(this).append("<span class='tooltip' style='background-color: #"+obj.color+"'>"+obj.title+"</span>");
-            });
-
-            $(".marxva").on('touchstart',function(){
-                       var tooltipWidth = $(this).find('.tooltip').innerWidth();
-                        $(this).find('.tooltip').width($(window).innerWidth() - 100);
-                        $(this).find('.tooltip').css('left',-$(this).offset().left + 40)
-                    });
-            
-          }});
-
         
 
 function calendar(month){
@@ -167,7 +69,6 @@ function calendar(month){
                     setTimeout(function(){
                         $("#cal .marxva").each(function(){
                 var obj = JSON.parse($(this).attr('title'));
-                console.log(obj);
                 $(this).find(".tooltip").remove();
                             $(this).find(".before").remove();
                 $(this).find('.ui-state-default').css("background-color","#"+obj.color).append('<span class="before" style="border-top-color: #'+obj.color+'"></span>');
@@ -182,7 +83,7 @@ function calendar(month){
               }
             });
             $("#cal").datepicker('option', 'firstDay', 1);
-            if(month) 
+            if(month != undefined) 
             $( "#cal" ).datepicker("setDate",new Date($( "#cal" ).datepicker('getDate').getFullYear(),month,$( "#cal" ).datepicker('getDate').getDate()));
             $("#cal .marxva").each(function(){
                 var obj = JSON.parse($(this).attr('title'));
@@ -220,9 +121,11 @@ function calendar(month){
                     if(feast){
                         month = feast - 1;
                         calendar(month);
+                        console.log(month);
                     }else if(marxvaStart){
                         month = marxvaStart - 1;
                         calendar(month);
+                        console.log(month);
                     }
                 });
             }
@@ -237,6 +140,3 @@ function calendar(month){
                 $("#color").html(html);
                 getCalendarByColor();
             }
-        </script>
-    </body>
-</html>
