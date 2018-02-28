@@ -135,6 +135,7 @@
                 margin-top: 30px;
                 width: 100%;
                 border-collapse: collapse;
+                touch-action: auto!important;
               }
               .tableheader{
                 border-bottom: 1px solid #D8D8D8;
@@ -317,7 +318,16 @@
               .ui-datepicker-other-month.marxva{
                 opacity: 0.5;
               }
-
+              #buttons{
+                transition: 0.3s;
+                position: absolute;
+                width: 100%;
+                left: 0;
+                padding: 0 25px;
+              }
+              body.calendar #buttons{
+                left: -150%;
+              }
               #buttons a{
             display: flex;
             align-items: center;
@@ -342,3 +352,86 @@
             margin-bottom: 50px;
             font-family: "BPG Arial";
           }
+
+          button.calendar{
+                background-color: transparent;
+                display: flex;
+                align-items: center;
+                margin-bottom: 36px;
+                position: fixed;
+                top: 36px;
+                font-family: "BPG Arial";
+              }
+
+        #marxvebi{
+                transition: 0.3s;
+                position: absolute;
+                width: 100%;
+                left: 0;
+                padding: 0 25px;
+              }
+              body.calendar #marxvebi{
+                left: -150%;
+              }
+
+            #feasts{
+                transition: 0.3s;
+                position: absolute;
+                width: 100%;
+                left: 0;
+                padding: 0 25px;
+              }
+              body.calendar #feasts{
+                left: -150%;
+              }
+
+              #afterclickoncalendar.showall{
+                padding: 0 5px;
+                overflow: hidden;
+              }
+              #afterclickoncalendar.showall .ui-datepicker-prev, #afterclickoncalendar.showall .ui-datepicker-next{
+                display: none;
+              }
+
+              #afterclickoncalendar.showall .ui-datepicker-header{
+                font-size: 8px;
+              }
+
+              #afterclickoncalendar.showall .ui-datepicker-calendar{
+                font-size: 6px;
+                margin-top: 0;
+              }
+
+              #afterclickoncalendar.showall th{
+                font-size: 5px;
+                padding: 0;
+              }
+
+              #afterclickoncalendar.showall .tooltip{
+                display: none;
+              }
+              #afterclickoncalendar.showall td{
+                padding: 0;
+              }
+
+              #afterclickoncalendar.showall .marxva span{
+                line-height: initial;
+                height: auto;
+                width: auto;
+              }
+
+              .ui-datepicker-multi{
+                width: 100%!important;
+                display: flex!important;
+                flex-wrap: wrap;
+                justify-content: space-between;
+              }
+
+              .ui-datepicker-group{
+                    width: 25%;
+                    margin-right: 7%;
+                    transform: scale(0.8);
+              }
+              .ui-datepicker-group:nth-child(3n + 3){
+                margin-right: 0;
+              }
